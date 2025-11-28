@@ -4,6 +4,32 @@ import 'package:json_annotation/json_annotation.dart';
 part 'roleplay.g.dart';
 
 @JsonSerializable()
+class RoleplayTitle {
+  final String id;
+  final String title;
+  final String description;
+  final String scenario;
+  final DifficultyLevel difficulty;
+  final List<String> estimatedVocabulary;
+  final String culturalContext;
+
+  RoleplayTitle({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.scenario,
+    required this.difficulty,
+    required this.estimatedVocabulary,
+    required this.culturalContext,
+  });
+
+  factory RoleplayTitle.fromJson(Map<String, dynamic> json) =>
+      _$RoleplayTitleFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RoleplayTitleToJson(this);
+}
+
+@JsonSerializable()
 class RoleplayOption {
   final String id;
   final String title;
@@ -29,6 +55,22 @@ class RoleplayOption {
       _$RoleplayOptionFromJson(json);
 
   Map<String, dynamic> toJson() => _$RoleplayOptionToJson(this);
+  
+  factory RoleplayOption.fromTitle({
+    required RoleplayTitle title,
+    required List<RoleplayMessage> messages,
+  }) {
+    return RoleplayOption(
+      id: title.id,
+      title: title.title,
+      description: title.description,
+      scenario: title.scenario,
+      difficulty: title.difficulty,
+      targetVocabulary: title.estimatedVocabulary,
+      culturalContext: title.culturalContext,
+      messages: messages,
+    );
+  }
 }
 
 @JsonSerializable()
@@ -112,6 +154,8 @@ enum UserLevel {
   @JsonValue('level2')
   level2, // Free typing with hints
 }
+
+
 
 @JsonSerializable()
 class CompletedMessage {

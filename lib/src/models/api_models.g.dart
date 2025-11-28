@@ -6,6 +6,41 @@ part of 'api_models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+GenerateRoleplayTitlesRequest _$GenerateRoleplayTitlesRequestFromJson(
+        Map<String, dynamic> json) =>
+    GenerateRoleplayTitlesRequest(
+      userProfile:
+          UserProfile.fromJson(json['userProfile'] as Map<String, dynamic>),
+      selectedLevel: json['selectedLevel'] as String,
+      currentDate: DateTime.parse(json['currentDate'] as String),
+      specialContext: json['specialContext'] as String?,
+    );
+
+Map<String, dynamic> _$GenerateRoleplayTitlesRequestToJson(
+        GenerateRoleplayTitlesRequest instance) =>
+    <String, dynamic>{
+      'userProfile': instance.userProfile,
+      'selectedLevel': instance.selectedLevel,
+      'currentDate': instance.currentDate.toIso8601String(),
+      'specialContext': instance.specialContext,
+    };
+
+GenerateRoleplayConversationRequest
+    _$GenerateRoleplayConversationRequestFromJson(Map<String, dynamic> json) =>
+        GenerateRoleplayConversationRequest(
+          userProfile:
+              UserProfile.fromJson(json['userProfile'] as Map<String, dynamic>),
+          selectedRoleplay: RoleplayTitle.fromJson(
+              json['selectedRoleplay'] as Map<String, dynamic>),
+        );
+
+Map<String, dynamic> _$GenerateRoleplayConversationRequestToJson(
+        GenerateRoleplayConversationRequest instance) =>
+    <String, dynamic>{
+      'userProfile': instance.userProfile,
+      'selectedRoleplay': instance.selectedRoleplay,
+    };
+
 GenerateRoleplaysRequest _$GenerateRoleplaysRequestFromJson(
         Map<String, dynamic> json) =>
     GenerateRoleplaysRequest(
@@ -23,6 +58,34 @@ Map<String, dynamic> _$GenerateRoleplaysRequestToJson(
       'selectedLevel': instance.selectedLevel,
       'currentDate': instance.currentDate.toIso8601String(),
       'specialContext': instance.specialContext,
+    };
+
+GenerateRoleplayTitlesResponse _$GenerateRoleplayTitlesResponseFromJson(
+        Map<String, dynamic> json) =>
+    GenerateRoleplayTitlesResponse(
+      roleplays: (json['roleplays'] as List<dynamic>)
+          .map((e) => RoleplayTitle.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$GenerateRoleplayTitlesResponseToJson(
+        GenerateRoleplayTitlesResponse instance) =>
+    <String, dynamic>{
+      'roleplays': instance.roleplays,
+    };
+
+GenerateRoleplayConversationResponse
+    _$GenerateRoleplayConversationResponseFromJson(Map<String, dynamic> json) =>
+        GenerateRoleplayConversationResponse(
+          messages: (json['messages'] as List<dynamic>)
+              .map((e) => RoleplayMessage.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        );
+
+Map<String, dynamic> _$GenerateRoleplayConversationResponseToJson(
+        GenerateRoleplayConversationResponse instance) =>
+    <String, dynamic>{
+      'messages': instance.messages,
     };
 
 GenerateRoleplaysResponse _$GenerateRoleplaysResponseFromJson(
@@ -46,7 +109,7 @@ OpenAIRequest _$OpenAIRequestFromJson(Map<String, dynamic> json) =>
           .map((e) => OpenAIMessage.fromJson(e as Map<String, dynamic>))
           .toList(),
       temperature: (json['temperature'] as num?)?.toDouble() ?? 0.7,
-      maxTokens: (json['max_tokens'] as num?)?.toInt() ?? 4000,
+      maxTokens: (json['max_tokens'] as num?)?.toInt() ?? 16000,
       responseFormat: json['response_format'] == null
           ? null
           : ResponseFormat.fromJson(

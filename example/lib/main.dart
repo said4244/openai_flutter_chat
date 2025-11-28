@@ -13,6 +13,7 @@ final chatControllerProvider = ChangeNotifierProvider<ChatController>((ref) {
     motherCulture: 'Egyptian',
     strongestLanguage: 'English',
     arabicLevel: ArabicLevel.beginner,
+    tryingToLearnThis: 'Alif fatha tanwin',
     learnedWords: ['مرحبا', 'شكرا', 'من فضلك', 'نعم', 'لا'],
     grammarCapabilities: GrammarCapabilities(
       knowsNouns: true,
@@ -78,17 +79,18 @@ class _HomePageState extends ConsumerState<HomePage> {
       return const ChatScreen();
     }
 
-    if (chatController.roleplayOptions.isNotEmpty) {
+    if (chatController.roleplayTitles.isNotEmpty) {
       return RoleplaySelectionScreen(
-        options: chatController.roleplayOptions,
-        onSelect: (roleplay) {
-          chatController.selectRoleplay(roleplay);
+        titles: chatController.roleplayTitles,
+        isLoadingConversation: chatController.isLoadingConversation,
+        onSelect: (title) async {
+          await chatController.selectRoleplayTitle(title);
         },
         onCancel: () {
           setState(() {
             selectedLevel = null;
           });
-          chatController.roleplayOptions.clear();
+          chatController.roleplayTitles.clear();
         },
       );
     }
@@ -116,8 +118,20 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ),
             const SizedBox(height: 48),
-            if (chatController.isLoading)
-              const CircularProgressIndicator()
+            if (chatController.isLoadingTitles)
+              Column(
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'جاري تحميل المحادثات...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              )
             else
               ..._buildLevelButtons(context, chatController),
             if (chatController.error != null) ...[
@@ -158,7 +172,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             setState(() {
               selectedLevel = level['id'] as String;
             });
-            controller.loadRoleplayOptions(
+            controller.loadRoleplayTitles(
               selectedLevel: level['id'] as String,
               specialContext: _getSpecialContext(),
             );
@@ -197,13 +211,15 @@ class _HomePageState extends ConsumerState<HomePage> {
 }
 
 class RoleplaySelectionScreen extends StatelessWidget {
-  final List<RoleplayOption> options;
-  final Function(RoleplayOption) onSelect;
+  final List<RoleplayTitle> titles;
+  final bool isLoadingConversation;
+  final Function(RoleplayTitle) onSelect;
   final VoidCallback onCancel;
 
   const RoleplaySelectionScreen({
     Key? key,
-    required this.options,
+    required this.titles,
+    required this.isLoadingConversation,
     required this.onSelect,
     required this.onCancel,
   }) : super(key: key);
@@ -218,73 +234,95 @@ class RoleplaySelectionScreen extends StatelessWidget {
           onPressed: onCancel,
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: options.length,
-        itemBuilder: (context, index) {
-          final option = options[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: InkWell(
-              onTap: () => onSelect(option),
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          _getIconForScenario(option.title),
-                          size: 32,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            option.title,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+      body: isLoadingConversation
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'جاري تحضير المحادثة...',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Preparing conversation...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: titles.length,
+              itemBuilder: (context, index) {
+                final title = titles[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: InkWell(
+                    onTap: () => onSelect(title),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                _getIconForScenario(title.title),
+                                size: 32,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  title.title,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              _buildDifficultyChip(title.difficulty),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            title.description,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade700,
                             ),
                           ),
-                        ),
-                        _buildDifficultyChip(option.difficulty),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      option.description,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade700,
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            children: title.estimatedVocabulary.take(5).map((word) {
+                              return Chip(
+                                label: Text(
+                                  word,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                backgroundColor: Colors.teal.shade50,
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      children: option.targetVocabulary.take(5).map((word) {
-                        return Chip(
-                          label: Text(
-                            word,
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          backgroundColor: Colors.teal.shade50,
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 

@@ -7,7 +7,7 @@ class ArabicKeyboard {
     // Third row
     ['ئ', 'ء', 'ؤ', 'ر', 'لا', 'ى', 'ة', 'و', 'ز', 'ظ', 'ذ'],
     // Fourth row - special characters and space
-    ['؟', '،', '.', ' ', '!', '؛', 'ـ'],
+    ['؟', '،', '.', ' ', '!', '؛', 'ـ', 'َ', 'ُ', 'ِ', 'ً', 'ٌ', 'ٍ'], // Add diacritics
   ];
   
   // Diacritics/variants mapping

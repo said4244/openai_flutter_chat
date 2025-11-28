@@ -14,6 +14,7 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile(
       motherCulture: json['motherCulture'] as String,
       strongestLanguage: json['strongestLanguage'] as String,
       arabicLevel: $enumDecode(_$ArabicLevelEnumMap, json['arabicLevel']),
+      tryingToLearnThis: json['tryingToLearnThis'] as String,
       learnedWords: (json['learnedWords'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
@@ -33,6 +34,7 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) =>
       'motherCulture': instance.motherCulture,
       'strongestLanguage': instance.strongestLanguage,
       'arabicLevel': _$ArabicLevelEnumMap[instance.arabicLevel]!,
+      'tryingToLearnThis': instance.tryingToLearnThis,
       'learnedWords': instance.learnedWords,
       'grammarCapabilities': instance.grammarCapabilities,
       'completedRoleplays': instance.completedRoleplays,
