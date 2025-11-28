@@ -4,7 +4,13 @@ library arabic_chat_roleplay;
 export 'src/models/user_profile.dart';
 export 'src/models/roleplay.dart';
 export 'src/models/chat_message.dart';
-export 'src/models/api_models.dart' show GenerateRoleplaysRequest, GenerateRoleplaysResponse;
+export 'src/models/api_models.dart' show 
+  GenerateRoleplaysRequest, 
+  GenerateRoleplaysResponse,
+  GenerateRoleplayTitlesRequest,
+  GenerateRoleplayTitlesResponse,
+  GenerateRoleplayConversationRequest,
+  GenerateRoleplayConversationResponse;
 
 // API
 export 'src/api/openai_service.dart';
@@ -12,6 +18,7 @@ export 'src/api/openai_service.dart';
 // Controllers
 export 'src/controllers/chat_controller.dart';
 export 'src/controllers/input_validator.dart';
+
 
 // Utils
 export 'src/utils/arabic_keyboard.dart';

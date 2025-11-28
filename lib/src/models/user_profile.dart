@@ -11,6 +11,7 @@ class UserProfile {
   final String motherCulture;
   final String strongestLanguage;
   final ArabicLevel arabicLevel;
+  final String tryingToLearnThis;
   final List<String> learnedWords;
   final GrammarCapabilities grammarCapabilities;
   final List<String> completedRoleplays;
@@ -23,6 +24,7 @@ class UserProfile {
     required this.motherCulture,
     required this.strongestLanguage,
     required this.arabicLevel,
+    required this.tryingToLearnThis,
     required this.learnedWords,
     required this.grammarCapabilities,
     required this.completedRoleplays,

@@ -6,6 +6,36 @@ part of 'roleplay.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+RoleplayTitle _$RoleplayTitleFromJson(Map<String, dynamic> json) =>
+    RoleplayTitle(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      description: json['description'] as String,
+      scenario: json['scenario'] as String,
+      difficulty: $enumDecode(_$DifficultyLevelEnumMap, json['difficulty']),
+      estimatedVocabulary: (json['estimatedVocabulary'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      culturalContext: json['culturalContext'] as String,
+    );
+
+Map<String, dynamic> _$RoleplayTitleToJson(RoleplayTitle instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'description': instance.description,
+      'scenario': instance.scenario,
+      'difficulty': _$DifficultyLevelEnumMap[instance.difficulty]!,
+      'estimatedVocabulary': instance.estimatedVocabulary,
+      'culturalContext': instance.culturalContext,
+    };
+
+const _$DifficultyLevelEnumMap = {
+  DifficultyLevel.easy: 'easy',
+  DifficultyLevel.medium: 'medium',
+  DifficultyLevel.hard: 'hard',
+};
+
 RoleplayOption _$RoleplayOptionFromJson(Map<String, dynamic> json) =>
     RoleplayOption(
       id: json['id'] as String,
@@ -33,12 +63,6 @@ Map<String, dynamic> _$RoleplayOptionToJson(RoleplayOption instance) =>
       'targetVocabulary': instance.targetVocabulary,
       'culturalContext': instance.culturalContext,
     };
-
-const _$DifficultyLevelEnumMap = {
-  DifficultyLevel.easy: 'easy',
-  DifficultyLevel.medium: 'medium',
-  DifficultyLevel.hard: 'hard',
-};
 
 RoleplayMessage _$RoleplayMessageFromJson(Map<String, dynamic> json) =>
     RoleplayMessage(

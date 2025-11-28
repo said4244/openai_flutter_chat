@@ -15,13 +15,15 @@ class ChatController extends ChangeNotifier {
   final _uuid = const Uuid();
   
   // State
-  List<RoleplayOption> _roleplayOptions = [];
+  List<RoleplayTitle> _roleplayTitles = [];
+  RoleplayTitle? _selectedRoleplayTitle;
   RoleplayOption? _selectedRoleplay;
   RoleplaySession? _currentSession;
   List<ChatMessage> _messages = [];
   InputState? _currentInputState;
   int _currentMessageIndex = 0;
-  bool _isLoading = false;
+  bool _isLoadingTitles = false;
+  bool _isLoadingConversation = false;
   String? _error;
   bool _keyboardGuideEnabled = true;  // New state for keyboard highlighting
   
@@ -36,12 +38,14 @@ class ChatController extends ChangeNotifier {
     required this.userProfile,
   }) : _openAIService = openAIService;
 
-  // Getters
-  List<RoleplayOption> get roleplayOptions => _roleplayOptions;
+  // Getters - updated to expose titles instead of full options
+  List<RoleplayTitle> get roleplayTitles => _roleplayTitles;
   RoleplayOption? get selectedRoleplay => _selectedRoleplay;
   List<ChatMessage> get messages => _messages;
   InputState? get currentInputState => _currentInputState;
-  bool get isLoading => _isLoading;
+  bool get isLoading => _isLoadingTitles || _isLoadingConversation;
+  bool get isLoadingTitles => _isLoadingTitles;
+  bool get isLoadingConversation => _isLoadingConversation;
   String? get error => _error;
   bool get hasActiveSession => _currentSession != null;
   double get sessionProgress {
@@ -71,33 +75,73 @@ class ChatController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Public Methods
+  // Public Methods - Updated for two-step process
   
-  Future<void> loadRoleplayOptions({
+  // Step 1: Load only roleplay titles (fast)
+  Future<void> loadRoleplayTitles({
     required String selectedLevel,
     String? specialContext,
   }) async {
     try {
-      _setLoading(true);
+      _setLoadingTitles(true);
       _error = null;
       
-      _logger.i('Loading roleplay options for level: $selectedLevel');
+      _logger.i('Loading roleplay titles for level: $selectedLevel');
       
-      _roleplayOptions = await _openAIService.generateRoleplays(
+      _roleplayTitles = await _openAIService.generateRoleplayTitles(
         userProfile: userProfile,
         selectedLevel: selectedLevel,
         specialContext: specialContext,
       );
       
-      _logger.i('Loaded ${_roleplayOptions.length} roleplay options');
+      _logger.i('Loaded ${_roleplayTitles.length} roleplay titles');
       notifyListeners();
     } catch (e) {
-      _logger.e('Failed to load roleplay options', error: e);
+      _logger.e('Failed to load roleplay titles', error: e);
       _error = 'Failed to load roleplays: ${e.toString()}';
       notifyListeners();
     } finally {
-      _setLoading(false);
+      _setLoadingTitles(false);
     }
+  }
+
+  // Step 2: Load full conversation for selected roleplay only
+  Future<void> selectRoleplayTitle(RoleplayTitle title) async {
+    try {
+      _selectedRoleplayTitle = title;
+      _setLoadingConversation(true);
+      _error = null;
+      
+      _logger.i('Loading conversation for roleplay: ${title.title}');
+      
+      _selectedRoleplay = await _openAIService.generateRoleplayConversation(
+        userProfile: userProfile,
+        selectedRoleplay: title,
+      );
+      
+      _logger.i('Loaded conversation with ${_selectedRoleplay!.messages.length} messages');
+      
+      // Start the session
+      _startSession();
+    } catch (e) {
+      _logger.e('Failed to load roleplay conversation', error: e);
+      _error = 'Failed to load conversation: ${e.toString()}';
+      _selectedRoleplayTitle = null;
+      notifyListeners();
+    } finally {
+      _setLoadingConversation(false);
+    }
+  }
+
+  // Keep old method for compatibility but update it to use new approach
+  Future<void> loadRoleplayOptions({
+    required String selectedLevel,
+    String? specialContext,
+  }) async {
+    await loadRoleplayTitles(
+      selectedLevel: selectedLevel,
+      specialContext: specialContext,
+    );
   }
 
   void selectRoleplay(RoleplayOption roleplay) {
@@ -108,6 +152,7 @@ class ChatController extends ChangeNotifier {
 
   void cancelSelection() {
     _logger.i('Cancelled roleplay selection');
+    _selectedRoleplayTitle = null;
     _selectedRoleplay = null;
     _currentSession = null;
     _messages.clear();
@@ -382,8 +427,13 @@ class ChatController extends ChangeNotifier {
     );
   }
 
-  void _setLoading(bool value) {
-    _isLoading = value;
+  void _setLoadingTitles(bool value) {
+    _isLoadingTitles = value;
+    notifyListeners();
+  }
+  
+  void _setLoadingConversation(bool value) {
+    _isLoadingConversation = value;
     notifyListeners();
   }
 
