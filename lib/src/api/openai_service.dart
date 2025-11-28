@@ -9,7 +9,7 @@ import '../utils/constants.dart';
 
 class OpenAIService {
   // Replace the late variable with a direct initialization
-  final String apiKey = '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';
+  final String apiKey = 'OPENAI_API_KEY';
   final http.Client? httpClient;
   final Logger _logger = Logger();
   late final http.Client _client;
