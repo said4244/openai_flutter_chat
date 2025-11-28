@@ -10,7 +10,7 @@ import '../utils/constants.dart';
 
 class OpenAIService {
   // Replace the late variable with a direct initialization
-  final String apiKey = '***REMOVED-OPENAI-KEY***';
+  final String apiKey = 'OPENAI_API_KEY';
   final http.Client? httpClient;
   final Logger _logger = Logger();
   late final http.Client _client;
